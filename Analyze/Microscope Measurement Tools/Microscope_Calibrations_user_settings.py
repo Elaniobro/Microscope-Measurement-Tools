@@ -31,20 +31,19 @@ Microscope scaling/pixel-size calibration settings.
 
 # The names of the microscope calibrations (shows up as the radio button names):
 names = [
-        'Swift 4x',
-        'Swift 10x',
-        'Swift 40x',
-        'Swift 100x',
-        ]
-
+    'Swift 350T 4x',
+    'Swift 350T 10x',
+    'Swift 350T 40x',
+    'Swift 350T 100x',
+]
 
 # The 'pixel-per-unit' obtained from the "Set Scale..." Dialog, for each named calibration above:
 cals = [
-        0.9058,
-        1.81,
-        12.5455,
-        25.4707,
-        ]
+    .49,
+    1.21004,
+    5.23009,
+    12.8429,
+]
 #   This is just 1/pixel_width, in case you were wondering.
 
 
