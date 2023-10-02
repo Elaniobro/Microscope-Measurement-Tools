@@ -18,8 +18,6 @@ from java.awt import Font as jFont      # for setting text font
 import sys, os
 
 
-
-
 # add the path to this script, so we can find the user-settings
 libpth = os.path.split(  os.path.split( sys.path[0] )[0]  )[0]  # split-off the "/jars/lib" part
 #print  libpth
@@ -35,7 +33,15 @@ except ValueError:
 #print sys.path
 
 # microscope settings should be in the file `Microscope_Calibrations_user_settings.py`:
-import Microscope_Calibrations_user_settings as sets      # imports settings under `sets.linecolor`, `sets.linethickness` etc.
+# import Microscope_Calibrations_user_settings as sets      # imports settings under `sets.linecolor`, `sets.linethickness` etc.
+
+linethickness = 3.0 # in pixels
+linecolor = [ 0, 0, 0, 1.0]
+textsize = 50 # text height in pixels, I think
+textcolor = [ 1, 1, 1,   1.0]
+textbackgroundcolor = [ 0.2, 0.2, 0.2, 0.2] # background color behind text.
+#textbackgroundcolor = None # set to None for no background - uncomment this line
+texttoleft = True # put text on left or right side of last point?
 
 #print os.path.abspath(sets.__file__)
 #print dir(sets)
@@ -89,9 +95,12 @@ def run():
     #roi.drawPixels( ip )   # draw along the ROI - only draws outline unfortunately
     ip.drawRoi(roi)     # draw the ROI on the image
     '''
-    
-    ip.setLineWidth(  int(sets.linethickness)  )      
-    ip.setColor(  jColor(float(sets.linecolor[0]), float(sets.linecolor[1]), float(sets.linecolor[2]), float(sets.linecolor[3]))  )
+
+
+
+
+    ip.setLineWidth(  int(linethickness)  )      
+    ip.setColor(  jColor(float(linecolor[0]), float(linecolor[1]), float(linecolor[2]), float(linecolor[3]))  )
     
     #ip.draw(roi)   # changed to ip.drawLine()
     ip.drawLine( int(roi.x1d),  int(roi.y1d), int(roi.x2d),  int(roi.y2d)  )
@@ -188,7 +197,7 @@ def drawText( text, x, y, position='bottom right' ):
     
     
     # microscope settings should be in the file `Microscope_Calibrations_user_settings.py`:
-    import Microscope_Calibrations_user_settings as sets      # imports settings under `sets.linecolor`, `sets.linethickness` etc.
+    # import Microscope_Calibrations_user_settings as sets      # imports settings under `sets.linecolor`, `sets.linethickness` etc.
     
     ip = IJ.getProcessor()  # Image Processor
     imp = IJ.getImage()     # get the current Image, which is an ImagePlus object
@@ -212,8 +221,8 @@ def drawText( text, x, y, position='bottom right' ):
     
     '''Setup text annotation'''
     # set font:
-    ip.setFont(   jFont('SansSerif', 0, sets.textsize)   )
-    ip.setColor(    jColor(  float(sets.textcolor[0]), float(sets.textcolor[1]), float(sets.textcolor[2]), float(sets.textcolor[3])  )   )
+    ip.setFont(   jFont('SansSerif', 0, textsize)   )
+    ip.setColor(    jColor(  float(textcolor[0]), float(textcolor[1]), float(textcolor[2]), float(textcolor[3])  )   )
     
     
     
@@ -263,8 +272,8 @@ def drawText( text, x, y, position='bottom right' ):
     print "drawText(): final (x,y)=(%i,%i)"%( x, y )
     
     
-    if sets.textbackgroundcolor:
-        ip.drawString( text, x, y, jColor(  float(sets.textbackgroundcolor[0]), float(sets.textbackgroundcolor[1]), float(sets.textbackgroundcolor[2]), float(sets.textbackgroundcolor[3])  ) )     # write the text w/ BG color
+    if textbackgroundcolor:
+        ip.drawString( text, x, y, jColor(  float(textbackgroundcolor[0]), float(textbackgroundcolor[1]), float(textbackgroundcolor[2]), float(textbackgroundcolor[3])  ) )     # write the text w/ BG color
     else:
         ip.drawString( text, x, y )     # write the text alone
 
