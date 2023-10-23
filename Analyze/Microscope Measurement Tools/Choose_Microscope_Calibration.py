@@ -22,6 +22,45 @@ from ij.gui import GenericDialog, YesNoCancelDialog
 import sys, os
 
 
+"""
+################################
+   Microscope Image settings - Moved from user_settings
+################################
+
+Microscope scaling/pixel-size calibration settings.
+"""
+
+# The names of the microscope calibrations (shows up as the radio button names):
+names = [
+        'Swift 4x',
+        'Swift 10x',
+        'Swift 40x',
+        'Swift 100x',
+        ]
+
+
+# The 'pixel-per-unit' obtained from the "Set Scale..." Dialog, for each named calibration above:
+cals = [
+        0.9058,
+        1.81,
+        12.5455,
+        25.4707,
+        ]
+#   This is just 1/pixel_width, in case you were wondering.
+
+
+# length-units for each calibration:
+#units = ['um','um','um','um','um']
+# for identical units for all cals, can use the following line instead (uncomment):
+units = ['um'    for x in cals]    # list-comprehension with constant `um`
+
+
+# Aspect Ratio for each calibration (default should be 1.0 )
+#   Ratio is defined as so: pixelHeight = pixelWidth * AspectRatio
+# The following sets the aspect ratio to 1 for all calibrations:
+aspect_ratio =  [ 1.0    for x in cals ]   # list-comprehension with constant `1`
+# Uncomment the following line to use custom aspect ratios:
+#aspect_ratio = [1, 1, 1, 1, 1]
 
 
 # add the path to this script, so we can find the user-settings
@@ -39,7 +78,7 @@ except ValueError:
 #print sys.path
 
 # microscope settings should be in the file `Microscope_Calibrations_user_settings.py`:
-import Microscope_Calibrations_user_settings as cal      # imports `names`, `cals`, `units` under namespace `cal.names` etc.
+# import Microscope_Calibrations_user_settings as cal      # imports `names`, `cals`, `units` under namespace `cal.names` etc.
 
 
 
@@ -54,19 +93,19 @@ def run():
     imp = IJ.getImage()     # get the current Image as ImagePlus object
 
     # Show "Choose Calibration" dialog:
-    CalIdx, SetGlobalScale, AddScaleBar = uScopeCalDialog(cal)
+    CalIdx, SetGlobalScale, AddScaleBar = uScopeCalDialog()
     
     if CalIdx == None: return       # User cancelled - exit
     
     newcal = imp.getCalibration().copy()   # make a copy of current calibration object
     
-    if isinstance( cal.names[CalIdx], str ):
+    if isinstance( names[CalIdx], str ):
         '''It's just a regular calibration setting'''
-        calName = cal.names[CalIdx]
+        calName = names[CalIdx]
         if mc_DEBUG: print("Calibration is Regular String/text")
-        newPixelPerUnit = float( cal.cals[CalIdx] )
-        newUnit = cal.units[CalIdx]
-        newAspect = float( cal.aspect_ratio[CalIdx] )
+        newPixelPerUnit = float( cals[CalIdx] )
+        newUnit = units[CalIdx]
+        newAspect = float( aspect_ratio[CalIdx] )
         
         newPixelWidth = 1. / newPixelPerUnit
         newPixelHeight = newPixelWidth * newAspect
@@ -75,11 +114,11 @@ def run():
         if mc_DEBUG: print("Calibration is a custom function.")
         # call the class' `classObj.cal( ImagePlusObject )` function to get the scale value:
         try:
-            calObject = cal.names[CalIdx]
+            calObject = names[CalIdx]
             calName = calObject.name
             newPixelPerUnit = calObject.cal( imp )
         except AttributeError:
-            raise ValueError('This calibration Name value is invalid, please check your Settings.py file!/n/tFor Calibration Number %i, got: `'%(CalIdx) + str(cal.names[CalIdx]) + '`. Expected a String or a Class instance with ".cal()" method, but got type ' + str( type(cal.names[CalIdx]) ) + ' with no ".cal()" method.' )
+            raise ValueError('This calibration Name value is invalid, please check your Settings.py file!/n/tFor Calibration Number %i, got: `'%(CalIdx) + str(names[CalIdx]) + '`. Expected a String or a Class instance with ".cal()" method, but got type ' + str( type(names[CalIdx]) ) + ' with no ".cal()" method.' )
         #end try
         
         newUnit = calObject.unit
@@ -121,7 +160,7 @@ def run():
 
 
 
-def uScopeCalDialog(cal):
+def uScopeCalDialog():
     ''' Pop up a dialog asking user to choose from the calibration names etc.
     
     CalIdx, SetGlobalScale, AddScaleBar = uScopeCalDialog(cal)
@@ -156,11 +195,11 @@ def uScopeCalDialog(cal):
     CalType_IsFunc = []
     
     
-    for ii, name in enumerate(cal.names):
+    for ii, name in enumerate(names):
         if mc_DEBUG: print( "item #%i: name=" % (ii), name, "\n\t type=", type(name)  )
         if isinstance(name, basestring):
             '''It's just a regular calibration setting'''
-            CalStr.append(  name + "      (%s"%cal.cals[ii] + " pixels/%s)"%cal.units[ii]  )
+            CalStr.append(  name + "      (%s"%cals[ii] + " pixels/%s)"%units[ii]  )
         else:
             ''' Assume we'll be loading a custom function/class '''
             CalStr.append(  name.name  )    # get the name from the Class' .name attribute
@@ -169,7 +208,7 @@ def uScopeCalDialog(cal):
 
     
     '''if > 20 cals, use dropdown list, otherwise use radio buttons'''
-    if len(cal.names) > 20:
+    if len(names) > 20:
         Radio=False
         # Drop-Down list:
         gd.addChoice("     Calibration:", CalStr, CalStr[0]   )   # default = 1st (#0)
